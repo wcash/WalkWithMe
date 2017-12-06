@@ -24,6 +24,7 @@ key = "AIzaSyDMhsvLB5Sa0jizEcPExguTmTPLyDi_fNU"
 
 # Configure application
 app = Flask(__name__)
+app.session_interface = RedisSessionInterface()
 
 # Configure redis
 redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
@@ -44,11 +45,11 @@ if app.config["DEBUG"]:
 def inject_user():
     return dict(username=my_name)
 
-# Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
+# # Configure session to use filesystem (instead of signed cookies)
+# app.config["SESSION_FILE_DIR"] = mkdtemp()
+# app.config["SESSION_PERMANENT"] = False
+# app.config["SESSION_TYPE"] = "filesystem"
+# Session(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///walk.db")

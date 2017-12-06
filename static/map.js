@@ -42,30 +42,33 @@ function initMap() {
 
     infoWindow = new google.maps.InfoWindow;
 
-    $.getJSON("/info", function(data) {
+    $.getJSON("/position", function(data) {
 
         userPosition = data[0]['location'];
         userDestination = data[0]['destination'];
+        console.log(data);
+
+        $.getJSON("/matches", function(data) {
+
+            if(data != null)
+            {
+
+                meeting = meetPoint(data);
+                //makeMarker(meeting);
+                console.log(meeting);
+                //calcRoute(data[0]['location'], meeting, data[0]['destination']);
+                calcRoute('Harvard Yard', meeting, 'Harvard Quad');
+
+                console.log(userPosition);
+            }
+        });
 
     });
 
 
 
 
-    $.getJSON("/matches", function(data) {
 
-        if(data != null)
-        {
-
-            meeting = meetPoint(data);
-            //makeMarker(meeting);
-            console.log(meeting);
-            //calcRoute(data[0]['location'], meeting, data[0]['destination']);
-            calcRoute('Harvard Yard', meeting, 'Harvard Quad');
-
-            console.log(userPosition);
-        }
-    });
     // // Try HTML5 geolocation. Code borrowed from Google API Example
     // if (navigator.geolocation) {
     //   navigator.geolocation.getCurrentPosition(function(position) {
