@@ -57,7 +57,7 @@ function initMap() {
                 //makeMarker(meeting);
                 console.log(meeting);
                 //calcRoute(data[0]['location'], meeting, data[0]['destination']);
-                calcRoute('Harvard Yard', meeting, 'Harvard Quad');
+                calcRoute(data[0]['location'], meeting, data[0]['destination']);
 
                 console.log(userPosition);
             }
