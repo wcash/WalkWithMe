@@ -10,7 +10,7 @@ var userDestination
 
 var meeting;
 
-//test test test
+console.log("test test test")
 
 
 // var riverNorth;
@@ -57,7 +57,7 @@ function initMap() {
                 //calcRoute(data[0]['location'], meeting, data[0]['destination']);
                 calcRoute(position[0]['location'], meeting, position[0]['destination']);
 
-                findDistance(position[0]['location'], position[0]['desetination']);
+                findDistance(position[0]['location'], meeting[0], position[0]['destination']);
             }
         });
 
@@ -146,19 +146,18 @@ function makeMarker(point){
 
 }
 
-function findDistance(start, end){
+function findDistance(first, second, end){
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
-      {
-        origins: [start],
-        destinations: [end],
-        travelMode: 'WALKING'
-      }, function(response, status){
-
-        console.log("W");
-
-      });
+        {
+            origins: [first, second],
+            destinations: [end, end],
+            travelMode: 'WALKING'
+        }, function(response, status){
 
 
+        console.log(response.rows);
+
+        });
 }
 
