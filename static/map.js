@@ -154,7 +154,6 @@ function findDistance(start, end){
 
 
       });
-      console.log("W");
 
 
 }
