@@ -10,8 +10,6 @@ var userDestination
 
 var meeting;
 
-// test test test test
-
 // var riverNorth;
 // var riverSouth;
 // var stadium;
