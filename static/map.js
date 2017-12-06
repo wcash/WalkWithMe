@@ -10,6 +10,8 @@ var userDestination
 
 var meeting;
 
+// test test test test
+
 // var riverNorth;
 // var riverSouth;
 // var stadium;
@@ -155,7 +157,6 @@ function findDistance(start, end){
         console.log("W");
 
       });
-      console.log("alksdjf");
 
 
 }
