@@ -10,6 +10,9 @@ var userDestination
 
 var meeting;
 
+// test test test test
+
+
 // var riverNorth;
 // var riverSouth;
 // var stadium;
@@ -21,15 +24,6 @@ var meeting;
 function initMap() {
 
     directionsService = new google.maps.DirectionsService;
-
-    // riverNorth = new google.maps.LatLng({lat: 42.371352, lng: -71.119394}); //Malkin Center
-    // riverSouth = new google.maps.LatLng({lat: 42.369858, lng: -71.122271}); //Traffic Light by Eliot
-    // stadium = new google.maps.LatLng({lat: 42.368208, lng: -71.124009}); //Traffic Light
-    // quad = new google.maps.LatLng({lat: 42.380624, lng: -71.124883}); //Edge of Quad
-    // yardNorth = new google.maps.LatLng({lat: 42.374644, lng: -71.118579}); //Johnson Gate
-    // yardSouth = new google.maps.LatLng({lat: 42.373201, lng: -71.117652}); //South Gat
-    // eastRiver = new google.maps.LatLng({lat: 42.370508, lng: -71.120394}); //South Gat
-
     directionsDisplay = new google.maps.DirectionsRenderer;
 
 
@@ -54,37 +48,10 @@ function initMap() {
                 //calcRoute(data[0]['location'], meeting, data[0]['destination']);
                 calcRoute(position[0]['location'], meeting, position[0]['destination']);
 
-                findDistance(position[0]['location'], meeting[0], position[0]['destination']);
             }
         });
 
     });
-
-
-
-
-
-    // // Try HTML5 geolocation. Code borrowed from Google API Example
-    // if (navigator.geolocation) {
-    //   navigator.geolocation.getCurrentPosition(function(position) {
-    //     pos = { lat: position.coords.latitude, lng: position.coords.longitude};
-    //     //makeMarker(pos);
-    //     //map.setCenter(pos);
-    //     console.log(pos);
-    //     calcRoute(currentLocation,meeting,destination);
-    //   }, function() {
-    //     //handleLocationError(true, infoWindow, map.getCenter());
-    //     calcRoute(currentLocation,meeting,destination);
-    //   });
-    // } else {
-    //   // Browser doesn't support Geolocation
-    //   //handleLocationError(false, infoWindow, map.getCenter());
-    // calcRoute(currentLocation,meeting,destination);
-
-    // }
-
-
-
 
 }
 
@@ -127,6 +94,7 @@ function meetPoint(place, start, destination){
     for (var i = 0; i < place.length; i++) {
         if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start && findDistance(start, place[i]['location'], destination)){
 
+            console.log(place[i]['location']);
             matches.push(place[i]['location']);
         }
     }
@@ -152,14 +120,19 @@ function findDistance(first, second, end){
             travelMode: 'WALKING'
         }, function(response, status){
 
-
-        if (response.rows[0].elements[0].distance.value > response.rows[1].elements[0].distance.value){
-            return true;
+        console.log(response);
+        console.log(response.rows[0].elements[0].distance.value);
+        console.log(response.rows[1].elements[0].distance.value);
+        var a = response.rows[0].elements[0].distance.value;
+        var b = response.rows[1].elements[0].distance.value
+        if (a < b){//response.rows[0].elements[0].distance.value < response.rows[1].elements[0].distance.value){
+            return false;
         }
         else {
             return false;
         }
 
+        return true;
         });
 }
 

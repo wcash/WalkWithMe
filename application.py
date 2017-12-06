@@ -222,9 +222,14 @@ def account():
 @login_required
 def map():
     """map"""
-    if not key:
-        raise RuntimeError("API_KEY not set")
-    return render_template("map.html", key = key)
+    if request.method == "POST":
+        if request.form['refresh'] == "refreshed":
+            return redirect("/map")
+    else:
+        if not key:
+            raise RuntimeError("API_KEY not set")
+        return render_template("map.html", key = key)
+
 
 
 
@@ -248,34 +253,37 @@ def friends():
 
     # User reached route via POST (as by submitting a form via GET)
     if request.method == "POST":
-        # Ensure username was submitted
-        if not request.form.get("newfriend"):
-            flash("You must provide a username to add!")
-        # ensure username exists
-        newfriend = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("newfriend").lower())
-        if len(newfriend) != 1:
-            flash("Username does not exist!")
-        elif newfriend[0]["user_id"] == session["user_id"]:
-            flash("You cannot add yourself!")
+        if request.form['refresh'] == "refreshed":
+            return redirect("/friends")
         else:
-            # check to see if you are on their list
-            check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name", friend_name=request.form.get("newfriend").lower(), my_name=session["my_name"])
-            if len(check) != 0:
-                newusername = request.form.get("newfriend").lower()
-                flash(f"You're already friends with {newusername}!")
+            # Ensure username was submitted
+            if not request.form.get("newfriend"):
+                flash("You must provide a username to add!")
+            # ensure username exists
+            newfriend = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("newfriend").lower())
+            if len(newfriend) != 1:
+                flash("Username does not exist!")
+            elif newfriend[0]["user_id"] == session["user_id"]:
+                flash("You cannot add yourself!")
             else:
-                # add to list
-                addfriend = db.execute("INSERT INTO friends (friend, user) VALUES (:friend, :username)",
-                                  friend=request.form.get("newfriend").lower(), username=session["my_name"])
-                if not addfriend:
+                # check to see if you are on their list
+                check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name", friend_name=request.form.get("newfriend").lower(), my_name=session["my_name"])
+                if len(check) != 0:
                     newusername = request.form.get("newfriend").lower()
-                    flash(f"You've already added {newusername}!")
-                # add to list
-                addfriend = db.execute("INSERT INTO friends (user, friend) VALUES (:friend, :username)",
-                                  friend=request.form.get("newfriend").lower(), username=session["my_name"])
-                if not addfriend:
-                    newusername = request.form.get("newfriend").lower()
-                    flash(f"You've already added {newusername}!")
+                    flash(f"You're already friends with {newusername}!")
+                else:
+                    # add to list
+                    addfriend = db.execute("INSERT INTO friends (friend, user) VALUES (:friend, :username)",
+                                      friend=request.form.get("newfriend").lower(), username=session["my_name"])
+                    if not addfriend:
+                        newusername = request.form.get("newfriend").lower()
+                        flash(f"You've already added {newusername}!")
+                    # add to list
+                    addfriend = db.execute("INSERT INTO friends (user, friend) VALUES (:friend, :username)",
+                                      friend=request.form.get("newfriend").lower(), username=session["my_name"])
+                    if not addfriend:
+                        newusername = request.form.get("newfriend").lower()
+                        flash(f"You've already added {newusername}!")
 
 
         return redirect("/friends")
