@@ -152,8 +152,10 @@ function findDistance(start, end){
         travelMode: 'WALKING'
       }, function(response, status){
 
+        console.log("W");
 
       });
+      console.log("alksdjf");
 
 
 }
