@@ -5,7 +5,6 @@ import requests
 import json, random
 import os
 import re
-import redis
 from cs50 import SQL, eprint
 from flask import Flask, flash, redirect, render_template, request, session, Response, jsonify
 from flask_session import Session
@@ -14,74 +13,8 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import apology, login_required
 from datetime import datetime
-# here
-
-import pickle
-from datetime import timedelta
-from uuid import uuid4
-from redis import Redis
-from werkzeug.datastructures import CallbackDict
-from flask.sessions import SessionInterface, SessionMixin
 
 
-class RedisSession(CallbackDict, SessionMixin):
-
-    def __init__(self, initial=None, sid=None, new=False):
-        def on_update(self):
-            self.modified = True
-        CallbackDict.__init__(self, initial, on_update)
-        self.sid = sid
-        self.new = new
-        self.modified = False
-
-
-class RedisSessionInterface(SessionInterface):
-    serializer = pickle
-    session_class = RedisSession
-
-    def __init__(self, redis=None, prefix='session:'):
-        if redis is None:
-            redis = Redis()
-        self.redis = redis
-        self.prefix = prefix
-
-    def generate_sid(self):
-        return str(uuid4())
-
-    def get_redis_expiration_time(self, app, session):
-        if session.permanent:
-            return app.permanent_session_lifetime
-        return timedelta(days=1)
-
-    def open_session(self, app, request):
-        sid = request.cookies.get(app.session_cookie_name)
-        if not sid:
-            sid = self.generate_sid()
-            return self.session_class(sid=sid, new=True)
-        val = self.redis.get(self.prefix + sid)
-        if val is not None:
-            data = self.serializer.loads(val)
-            return self.session_class(data, sid=sid)
-        return self.session_class(sid=sid, new=True)
-
-    def save_session(self, app, session, response):
-        domain = self.get_cookie_domain(app)
-        if not session:
-            self.redis.delete(self.prefix + session.sid)
-            if session.modified:
-                response.delete_cookie(app.session_cookie_name,
-                                       domain=domain)
-            return
-        redis_exp = self.get_redis_expiration_time(app, session)
-        cookie_exp = self.get_expiration_time(app, session)
-        val = self.serializer.dumps(dict(session))
-        self.redis.setex(self.prefix + session.sid, val,
-                         int(redis_exp.total_seconds()))
-        response.set_cookie(app.session_cookie_name, session.sid,
-                            expires=cookie_exp, httponly=True,
-                            domain=domain)
-
-#to here
 location = None;
 destination = None;
 arrivalTime = None;
@@ -89,13 +22,8 @@ arrivalTime = None;
 # API Key
 key = "AIzaSyDMhsvLB5Sa0jizEcPExguTmTPLyDi_fNU"
 
-# Configure application
+# Configure applicxation
 app = Flask(__name__)
-app.session_interface = RedisSessionInterface()
-
-# configure redis
-redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-redis = redis.from_url(redis_url)
 
 # Ensure responses aren't cached
 if app.config["DEBUG"]:
@@ -106,27 +34,17 @@ if app.config["DEBUG"]:
         response.headers["Pragma"] = "no-cache"
         return response
 
-# # inject username to all html
-@app.context_processor
-def inject_user():
-    return dict(username=my_name)
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
-# # Configure session to use filesystem (instead of signed cookies)
-# app.config["SESSION_FILE_DIR"] = mkdtemp()
-# app.config["SESSION_PERMANENT"] = False
-# app.config["SESSION_TYPE"] = "filesystem"
-# Session(app)
+# set the secret key.  keep this really secret:
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///walk.db")
-
-# configure global variable for username, set to null
-global my_name
-my_name = None
-global current_request
-current_request = None
-global matches
-matches = None
 
 @app.route("/")
 def index():
@@ -163,8 +81,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["user_id"]
-        global my_name
-        my_name = username
+        session["my_name"] = username
         # Redirect user to home page
         return redirect("/")
 
@@ -290,7 +207,7 @@ def account():
                 # remove user from master users table
                 delete = db.execute("DELETE FROM users WHERE user_id = :user", user=session["user_id"])
                 # remove all rows that include user in friends
-                friendslist = db.execute("DELETE FROM friends WHERE friend = :name OR user = :name", name=my_name)
+                friendslist = db.execute("DELETE FROM friends WHERE friend = :name OR user = :name", name=session["my_name"])
 
                 # Forget any user_id
                 session.clear()
@@ -316,7 +233,7 @@ def map():
 def friends():
     """friends"""
     # Query for list of friends
-    friends = db.execute("SELECT friend FROM friends WHERE user = :name", name=my_name)
+    friends = db.execute("SELECT friend FROM friends WHERE user = :name", name=session["my_name"])
     # initiate list of friends
     friendslist = list()
     # for each item in sql output, find which is friend and add to friendslist
@@ -327,18 +244,7 @@ def friends():
 
     # collect current_request
     current = db.execute("SELECT destination, dep_time, location FROM users WHERE user_id = :id", id=session["user_id"])
-    global current_request
-    current_request = current[0]
-
-    # # compare friends list with current_request to see if any have same destination or time, respectively. matches is list of all users on users friend list who has same destination and time
-    # if current_request and friendslist:
-    #     global matches
-    #     matches = list()
-    #     i = 0
-    #     for friend in friendslist:
-    #         if (friendslist[i]['destination'] == current_request['destination']) and (friendslist[i]['location'] == current_request['location']) and (friendslist[i]['dep_time'] == current_request['dep_time']):
-    #             matches.append(friend[i]['username'])
-    #         i+=1
+    session["current_request"] = current[0]
 
     # User reached route via POST (as by submitting a form via GET)
     if request.method == "POST":
@@ -353,20 +259,20 @@ def friends():
             flash("You cannot add yourself!")
         else:
             # check to see if you are on their list
-            check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name", friend_name=request.form.get("newfriend").lower(), my_name=my_name)
+            check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name", friend_name=request.form.get("newfriend").lower(), my_name=session["my_name"])
             if len(check) != 0:
                 newusername = request.form.get("newfriend").lower()
                 flash(f"You're already friends with {newusername}!")
             else:
                 # add to list
                 addfriend = db.execute("INSERT INTO friends (friend, user) VALUES (:friend, :username)",
-                                  friend=request.form.get("newfriend").lower(), username=my_name)
+                                  friend=request.form.get("newfriend").lower(), username=session["my_name"])
                 if not addfriend:
                     newusername = request.form.get("newfriend").lower()
                     flash(f"You've already added {newusername}!")
                 # add to list
                 addfriend = db.execute("INSERT INTO friends (user, friend) VALUES (:friend, :username)",
-                                  friend=request.form.get("newfriend").lower(), username=my_name)
+                                  friend=request.form.get("newfriend").lower(), username=session["my_name"])
                 if not addfriend:
                     newusername = request.form.get("newfriend").lower()
                     flash(f"You've already added {newusername}!")
@@ -383,18 +289,16 @@ def errorhandler(e):
 @app.route("/matches")
 def matches():
     """Look up friend matches"""
-    global my_name
-    info = db.execute("SELECT * FROM users WHERE username = :user", user = my_name)
+    info = db.execute("SELECT * FROM users WHERE username = :user", user = session["my_name"])
     friends = db.execute("SELECT * FROM users JOIN friends ON friends.user = users.username WHERE friends.friend = :user AND users.destination = :destination AND users.dep_time = :time"
-        , user = my_name, destination = info[0]["destination"], time = info[0]["dep_time"])
+        , user = session["my_name"], destination = info[0]["destination"], time = info[0]["dep_time"])
 
     return jsonify(friends)
 
 @app.route("/position")
 def position():
     """Look up friend matches"""
-    global my_name
-    info = db.execute("SELECT * FROM users WHERE username = :user", user = my_name)
+    info = db.execute("SELECT * FROM users WHERE username = :user", user = session["my_name"])
 
     return jsonify(info)
 
@@ -406,26 +310,29 @@ def order():
     if request.method == "POST":
         if request.form['submission'] == "request":
             if not request.form.get("location"):
-                flash("You must provide where you are")
-            if not request.form.get("destination"):
-                flash("You must provide a destination")
-            if not request.form.get("arrival"):
-                flash("You must provide an arrival time")
-            update = db.execute("UPDATE users SET destination = :destination, dep_time = :arrival, location = :location WHERE user_id = :id",
-                id=session["user_id"], destination = request.form.get("destination"), arrival=request.form.get("arrival"), location = request.form.get("location"))
-            location = request.form.get("location")
-            destination = request.form.get("destination")
-            arrivalTime = request.form.get("arrival")
-            return redirect("/map")
+                flash("You must provide your current location!")
+            elif not request.form.get("destination"):
+                flash("You must provide a destination!")
+            elif not request.form.get("arrival"):
+                flash("You must provide an arrival time!")
+            else:
+                update = db.execute("UPDATE users SET destination = :destination, dep_time = :arrival, location = :location WHERE user_id = :id",
+                    id=session["user_id"], destination = request.form.get("destination"), arrival=request.form.get("arrival"), location = request.form.get("location"))
+                location = request.form.get("location")
+                destination = request.form.get("destination")
+                arrivalTime = request.form.get("arrival")
+                return redirect("/map")
+            return redirect("/request")
 
         if request.form['submission'] == "clear":
-            update = db.execute("UPDATE users SET destination = NULL, dep_time = NULL WHERE user_id = :id", id=session["user_id"])
+            update = db.execute("UPDATE users SET destination = NULL, location = NULL, dep_time = NULL WHERE user_id = :id", id=session["user_id"])
 
 
-    select = db.execute("SELECT destination, dep_time FROM users WHERE user_id = :id", id=session["user_id"])
+    select = db.execute("SELECT destination, location, dep_time FROM users WHERE user_id = :id", id=session["user_id"])
     destination = select[0]['destination']
     arrival = select[0]['dep_time']
-    return render_template("request.html", destination=destination, arrival=arrival)
+    location = select[0]['location']
+    return render_template("request.html", destination=destination, arrival=arrival, location=location)
 
 # listen for errors
 for code in default_exceptions:

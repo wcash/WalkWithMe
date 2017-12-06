@@ -10,25 +10,25 @@ var userDestination
 
 var meeting;
 
-var riverNorth;
-var riverSouth;
-var stadium;
-var quad;
-var yardNorth;
-var yardSouth;
-var eastRiver
+// var riverNorth;
+// var riverSouth;
+// var stadium;
+// var quad;
+// var yardNorth;
+// var yardSouth;
+// var eastRiver
 
 function initMap() {
 
     directionsService = new google.maps.DirectionsService;
 
-    riverNorth = new google.maps.LatLng({lat: 42.371352, lng: -71.119394}); //Malkin Center
-    riverSouth = new google.maps.LatLng({lat: 42.369858, lng: -71.122271}); //Traffic Light by Eliot
-    stadium = new google.maps.LatLng({lat: 42.368208, lng: -71.124009}); //Traffic Light
-    quad = new google.maps.LatLng({lat: 42.380624, lng: -71.124883}); //Edge of Quad
-    yardNorth = new google.maps.LatLng({lat: 42.374644, lng: -71.118579}); //Johnson Gate
-    yardSouth = new google.maps.LatLng({lat: 42.373201, lng: -71.117652}); //South Gat
-    eastRiver = new google.maps.LatLng({lat: 42.370508, lng: -71.120394}); //South Gat
+    // riverNorth = new google.maps.LatLng({lat: 42.371352, lng: -71.119394}); //Malkin Center
+    // riverSouth = new google.maps.LatLng({lat: 42.369858, lng: -71.122271}); //Traffic Light by Eliot
+    // stadium = new google.maps.LatLng({lat: 42.368208, lng: -71.124009}); //Traffic Light
+    // quad = new google.maps.LatLng({lat: 42.380624, lng: -71.124883}); //Edge of Quad
+    // yardNorth = new google.maps.LatLng({lat: 42.374644, lng: -71.118579}); //Johnson Gate
+    // yardSouth = new google.maps.LatLng({lat: 42.373201, lng: -71.117652}); //South Gat
+    // eastRiver = new google.maps.LatLng({lat: 42.370508, lng: -71.120394}); //South Gat
 
     directionsDisplay = new google.maps.DirectionsRenderer;
 
@@ -104,6 +104,7 @@ function calcRoute(start, meeting, end) {
         origin: start,
         waypoints: waypts,
         destination: end,
+        optimizeWaypoints: true,
         travelMode: 'WALKING'
     };
     directionsService.route(request, function(result, status) {
@@ -122,10 +123,10 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 }
 
 function meetPoint(place, start){
-    var matches = ["Harvard Eliot House"];
+    var matches = [];
 
     for (var i = 0; i < place.length; i++) {
-        if($.inArray(place[i]['location'], matches) == -1){
+        if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start){
             matches.push(place[i]['location']);
         }
     }

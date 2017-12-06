@@ -46,7 +46,7 @@
                         <li class="nav-item"><a class="nav-link" href="/account">Settings</a></li>
                     </ul>
                     <ul class="navbar-nav ml-auto mt-2">
-                        <li class="nav-item" display="inline"><a class="nav-link" href="/account">Hi, {{ username | title }}</li>
+                        <li class="nav-item" display="inline"><a class="nav-link" href="/account">Hi, {{ session["my_name"] | title }}</li>
                         <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
                     </ul>
                 {% endif %}

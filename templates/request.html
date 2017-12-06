@@ -11,6 +11,7 @@
 {% block main %}
 
 <h1 style="text-align: center;">Current Request:</h1>
+<p class="form-group">Current Location: {{ location | title}}</p>
 <p class="form-group">Destination: {{ destination | title}}</p>
 <p class="form-group">Planned Arrival Time: {{ arrival | title }}</p>
 
@@ -24,12 +25,18 @@
         <div class="form-group">
             <p class="form-group">Where Are You:</p>
             <select name="location" required>
-              <option selected="selected" disabled="disabled">Select a destination</option>
+              <option selected="selected" disabled="disabled">Select a current location</option>
               <option value="Harvard Quad">Quad</option>
-              <option value="Harvard Eliot House">East River</option>
-              <option value="Harvard Dunster House">West River</option>
+              <option value="Harvard Eliot House">Eliot House</option>
+              <option value="Harvard Kirkland House">Kirkland House</option>
+              <option value="Harvard Dunster House">Dunster House</option>
+              <option value="Harvard Leverett House">Leverett House</option>
+              <option value="Harvard Lowell House">Lowell House</option>
+              <option value="Harvard Mather House">Mather House</option>
+              <option value="Harvard Adams House">Adams House</option>
               <option value="Harvard Yard">Yard</option>
               <option value="Harvard Stadium">Stadium</option>
+              <option value="Harvard Winthrop House">Winthrop House</option>
             </select>
         </div>
         <div class="form-group">
@@ -37,10 +44,16 @@
             <select name="destination" required>
               <option selected="selected" disabled="disabled">Select a destination</option>
               <option value="Harvard Quad">Quad</option>
-              <option value="Harvard Eliot House">East River</option>
-              <option value="Harvard Dunster House">West River</option>
+              <option value="Harvard Eliot House">Eliot House</option>
+              <option value="Harvard Kirkland House">Kirkland House</option>
+              <option value="Harvard Dunster House">Dunster House</option>
+              <option value="Harvard Leverett House">Leverett House</option>
+              <option value="Harvard Lowell House">Lowell House</option>
+              <option value="Harvard Mather House">Mather House</option>
+              <option value="Harvard Adams House">Adams House</option>
               <option value="Harvard Yard">Yard</option>
               <option value="Harvard Stadium">Stadium</option>
+              <option value="Harvard Winthrop House">Winthrop House</option>
             </select>
         </div>
         <div class="form-group">
