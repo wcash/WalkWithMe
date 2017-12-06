@@ -10,7 +10,7 @@ var userDestination
 
 var meeting;
 
-console.log("test test test")
+// test test test test
 
 
 // var riverNorth;
@@ -156,7 +156,9 @@ function findDistance(first, second, end){
         }, function(response, status){
 
 
-        console.log(response.rows);
+        if (response.rows[0].elements[0].distance.value > response.rows[1].elements[0].distance.value){
+            console.log("w");
+        }
 
         });
 }
