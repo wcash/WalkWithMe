@@ -49,13 +49,12 @@ function initMap() {
             if(data != null)
             {
 
-                meeting = meetPoint(data, position[0]['location']);
+                meeting = meetPoint(data, position[0]['location'], position[0]['destination']);
                 //makeMarker(meeting);
-                console.log(meeting);
                 //calcRoute(data[0]['location'], meeting, data[0]['destination']);
                 calcRoute(position[0]['location'], meeting, position[0]['destination']);
 
-                console.log(userPosition);
+                findDistance(position[0]['location'], position[0]['desetination']);
             }
         });
 
@@ -122,41 +121,18 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     infoWindow.open(map);
 }
 
-function meetPoint(place, start){
+function meetPoint(place, start, destination){
     var matches = [];
 
     for (var i = 0; i < place.length; i++) {
         if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start){
+
             matches.push(place[i]['location']);
         }
     }
 
     return matches;
 
-    // switch (place[0]['location']){
-    //     case 'Harvard Eliot House':
-    //         if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
-    //             return(eastRiver);
-    //         }
-    //         if (place[0]['destination'] == 'Harvard Dunster House' || place[0]['destination'] == 'Harvard Stadium')
-    //             return(eastRiver);
-    //     case 'Harvard Eliot House':
-    //         if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
-    //             return(riverNorth);
-    //         }
-    //         if (place[0]['destination'] == 'river' || place[0]['destination'] == 'Harvard Stadium')
-    //             return(riverSouth);
-    //     case 'Harvard Stadium':
-    //             return(stadium);
-    //     case 'Harvard Quad':
-    //             return(quad);
-    //     case 'Harvard Yard':
-    //         if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
-    //             return(yardNorth);
-    //         }
-    //         if (place[0]['destination'] == 'river' || place[0]['destination'] == 'Harvard Stadium')
-    //             return(yardSouth);
-    // }
 }
 
 function makeMarker(point){
@@ -164,6 +140,22 @@ function makeMarker(point){
         position: point,
         map: map
     });
+
+}
+
+function findDistance(start, end){
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+      {
+        origins: [start],
+        destinations: [end],
+        travelMode: 'WALKING'
+      }, function(response, status){
+
+
+      });
+      console.log("W");
+
 
 }
 
