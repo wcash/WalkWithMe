@@ -42,22 +42,18 @@ function initMap() {
 
     infoWindow = new google.maps.InfoWindow;
 
-    $.getJSON("/position", function(data) {
-
-        userPosition = data[0]['location'];
-        userDestination = data[0]['destination'];
-        console.log(data);
+    $.getJSON("/position", function(position) {
 
         $.getJSON("/matches", function(data) {
 
             if(data != null)
             {
 
-                meeting = meetPoint(data);
+                meeting = meetPoint(data, position[0]['location']);
                 //makeMarker(meeting);
                 console.log(meeting);
                 //calcRoute(data[0]['location'], meeting, data[0]['destination']);
-                calcRoute(data[0]['location'], meeting, data[0]['destination']);
+                calcRoute(position[0]['location'], meeting, position[0]['destination']);
 
                 console.log(userPosition);
             }
@@ -125,7 +121,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     infoWindow.open(map);
 }
 
-function meetPoint(place){
+function meetPoint(place, start){
     var matches = ["Harvard Eliot House"];
 
     for (var i = 0; i < place.length; i++) {
