@@ -116,11 +116,12 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 }
 
 function meetPoint(place){
-    var matches = [];
+    var matches = ["Harvard Eliot House"];
 
     for (var i = 0; i < place.length; i++) {
-        if(!$.inArray(place[i]['location'], matches)){
+        if($.inArray(place[i]['location'], matches)){
             matches.push(place[i]['location']);
+            console.log("W");
         }
     }
 
