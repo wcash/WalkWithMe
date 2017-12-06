@@ -17,6 +17,7 @@ cs50==2.3.2
 cssselect==1.0.1
 cssselect2==0.2.0
 decorator==4.1.2
+django-redis-cache==1.7.1
 EditorConfig==0.12.1
 feedparser==5.2.1
 Flask==0.12.2
@@ -44,6 +45,7 @@ MarkupSafe==1.0
 mccabe==0.6.1
 natsort==5.1.0
 nbformat==4.4.0
+nltk==3.2.4
 oauthlib==2.0.2
 olefile==0.44
 passlib==1.7.1
@@ -62,6 +64,7 @@ PyPDF2==1.26.0
 Pyphen==0.9.4
 python-magic==0.4.13
 pytz==2017.2
+redis==2.10.6
 render50==2.3.1
 requests==2.18.4
 requests-oauthlib==0.8.0

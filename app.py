@@ -5,6 +5,7 @@ import requests
 import json, random
 import os
 import re
+import redis
 from cs50 import SQL, eprint
 from flask import Flask, flash, redirect, render_template, request, session, Response, jsonify
 from flask_session import Session
@@ -23,6 +24,10 @@ key = "AIzaSyDMhsvLB5Sa0jizEcPExguTmTPLyDi_fNU"
 
 # Configure application
 app = Flask(__name__)
+
+# Configure redis
+redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+redis = redis.from_url(redis_url)
 
 
 # Ensure responses aren't cached

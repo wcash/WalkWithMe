@@ -61,7 +61,9 @@ function initMap() {
             //makeMarker(meeting);
             console.log(meeting);
             //calcRoute(data[0]['location'], meeting, data[0]['destination']);
+            calcRoute('Harvard Yard', meeting, 'Harvard Quad');
 
+            console.log(userPosition);
         }
     });
     // // Try HTML5 geolocation. Code borrowed from Google API Example
@@ -89,11 +91,16 @@ function initMap() {
 }
 
 function calcRoute(start, meeting, end) {
+
     var waypts = [];
-    waypts.push({
-        location: meeting,
-        stopover: true
-    });
+
+    for (var i = 0; i < meeting.length; i++){
+        waypts.push({
+            location: meeting[i],
+            stopover: true
+        });
+    }
+
     var request = {
         origin: start,
         waypoints: waypts,
@@ -119,9 +126,8 @@ function meetPoint(place){
     var matches = ["Harvard Eliot House"];
 
     for (var i = 0; i < place.length; i++) {
-        if($.inArray(place[i]['location'], matches)){
+        if($.inArray(place[i]['location'], matches) == -1){
             matches.push(place[i]['location']);
-            console.log("W");
         }
     }
 
