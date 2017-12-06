@@ -60,8 +60,7 @@ function initMap() {
             meeting = meetPoint(data);
             //makeMarker(meeting);
             console.log(meeting);
-            calcRoute(data[0]['location'], meeting, data[0]['destination']);
-
+            //calcRoute(data[0]['location'], meeting, data[0]['destination']);
 
         }
     });
@@ -117,30 +116,40 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 }
 
 function meetPoint(place){
-    switch (place[0]['location']){
-        case 'Harvard Eliot House':
-            if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
-                return(eastRiver);
-            }
-            if (place[0]['destination'] == 'Harvard Dunster House' || place[0]['destination'] == 'Harvard Stadium')
-                return(eastRiver);
-        case 'Harvard Eliot House':
-            if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
-                return(riverNorth);
-            }
-            if (place[0]['destination'] == 'river' || place[0]['destination'] == 'Harvard Stadium')
-                return(riverSouth);
-        case 'Harvard Stadium':
-                return(stadium);
-        case 'Harvard Quad':
-                return(quad);
-        case 'Harvard Yard':
-            if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
-                return(yardNorth);
-            }
-            if (place[0]['destination'] == 'river' || place[0]['destination'] == 'Harvard Stadium')
-                return(yardSouth);
+    var matches = [];
+
+    for (var i = 0; i < place.length; i++) {
+        if(!$.inArray(place[i]['location'], matches)){
+            matches.push(place[i]['location']);
+        }
     }
+
+    return matches;
+
+    // switch (place[0]['location']){
+    //     case 'Harvard Eliot House':
+    //         if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
+    //             return(eastRiver);
+    //         }
+    //         if (place[0]['destination'] == 'Harvard Dunster House' || place[0]['destination'] == 'Harvard Stadium')
+    //             return(eastRiver);
+    //     case 'Harvard Eliot House':
+    //         if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
+    //             return(riverNorth);
+    //         }
+    //         if (place[0]['destination'] == 'river' || place[0]['destination'] == 'Harvard Stadium')
+    //             return(riverSouth);
+    //     case 'Harvard Stadium':
+    //             return(stadium);
+    //     case 'Harvard Quad':
+    //             return(quad);
+    //     case 'Harvard Yard':
+    //         if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
+    //             return(yardNorth);
+    //         }
+    //         if (place[0]['destination'] == 'river' || place[0]['destination'] == 'Harvard Stadium')
+    //             return(yardSouth);
+    // }
 }
 
 function makeMarker(point){

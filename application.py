@@ -25,7 +25,6 @@ key = "AIzaSyDMhsvLB5Sa0jizEcPExguTmTPLyDi_fNU"
 app = Flask(__name__)
 
 
-
 # Ensure responses aren't cached
 if app.config["DEBUG"]:
     @app.after_request
