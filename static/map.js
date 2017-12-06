@@ -5,9 +5,10 @@ var json;
 var directionsService;
 var directionsDisplay;
 
-var currentLocation;
+var userPosition;
+var userDestination
+
 var meeting;
-var destination;
 
 var riverNorth;
 var riverSouth;
@@ -41,6 +42,16 @@ function initMap() {
 
     infoWindow = new google.maps.InfoWindow;
 
+    $.getJSON("/info", function(data) {
+
+        userPosition = data[0]['location'];
+        userDestination = data[0]['destination'];
+
+    });
+
+
+
+
     $.getJSON("/matches", function(data) {
 
         if(data != null)
@@ -48,7 +59,6 @@ function initMap() {
 
             meeting = meetPoint(data);
             //makeMarker(meeting);
-            destination = data[0]['destination'];
             console.log(meeting);
             calcRoute(data[0]['location'], meeting, data[0]['destination']);
 
@@ -110,10 +120,10 @@ function meetPoint(place){
     switch (place[0]['location']){
         case 'Harvard Eliot House':
             if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
-                return(riverNorth);
+                return(eastRiver);
             }
-            if (place[0]['destination'] == 'river' || place[0]['destination'] == 'Harvard Stadium')
-                return(riverSouth);
+            if (place[0]['destination'] == 'Harvard Dunster House' || place[0]['destination'] == 'Harvard Stadium')
+                return(eastRiver);
         case 'Harvard Eliot House':
             if (place[0]['destination'] == 'Harvard Quad' || place[0]['destination'] == 'Harvard Yard'){
                 return(riverNorth);

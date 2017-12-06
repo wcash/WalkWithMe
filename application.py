@@ -314,10 +314,18 @@ def matches():
     """Look up friend matches"""
     global my_name
     info = db.execute("SELECT * FROM users WHERE username = :user", user = my_name)
-    friends = db.execute("SELECT * FROM users JOIN friends ON friends.user = users.username WHERE friends.friend = :user AND users.destination = :destination AND users.location = :location AND users.dep_time = :time"
-        , user = my_name, destination = info[0]["destination"], location = info[0]["location"], time = info[0]["dep_time"])
+    friends = db.execute("SELECT * FROM users JOIN friends ON friends.user = users.username WHERE friends.friend = :user AND users.destination = :destination AND users.dep_time = :time"
+        , user = my_name, destination = info[0]["destination"], time = info[0]["dep_time"])
 
     return jsonify(friends)
+
+@app.route("/position")
+def position():
+    """Look up friend matches"""
+    global my_name
+    info = db.execute("SELECT * FROM users WHERE username = :user", user = my_name)
+
+    return jsonify(info)
 
 @app.route("/request", methods=["GET", "POST"])
 @login_required
