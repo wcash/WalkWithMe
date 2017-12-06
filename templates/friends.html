@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Friends
+{% endblock %}
+
+{% block main %}
+    <p style="text-align: center;">
+      {% if (friends|length) == 1 %}
+      You currently have {{friends|length}} friend! Add new friends here:
+      {% elif (friends|length) != 1 %}
+      You currently have {{friends|length}} friends! Add new friends here:
+      {% endif %}</p>
+    <form action="/friends" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="newfriend" placeholder="username" type="text"/>
+            <button class="btn btn-primary" type="submit">Add Friend</button>
+        </div>
+    </form>
+<table class="table table-striped table-hover ">
+  <thead>
+    <tr>
+      <TH>Username</TH>
+      <TH>Current Location</TH>
+      <TH>Destination</TH>
+      <TH>Departure Time</TH>
+    </tr>
+  </thead>
+  <tbody>
+       {% for friend in friends %}
+            <tr>
+              <td>{{ friend.username | title }}</td>
+              <td>{{ friend.location | title }}</td>
+              <td>{{ friend.destination | title }}</td>
+              <td>{{ friend.dep_time | title }}</td>
+            </tr>
+         {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

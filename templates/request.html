@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Request
+{% endblock %}
+
+{% block body %}
+<script src="/static/map.js"></script>
+{% endblock %}
+
+{% block main %}
+
+<h1 style="text-align: center;">Current Request:</h1>
+<p class="form-group">Destination: {{ destination | title}}</p>
+<p class="form-group">Planned Arrival Time: {{ arrival | title }}</p>
+
+<form action="/request" method="post">
+    <button class="btn btn-primary" type="submit">Clear</button>
+    <input type="hidden" name="submission" value="clear"/>
+</form>
+
+<h1 style="text-align: center;">New Request:</h1>
+    <form action="/request" method="post">
+        <div class="form-group">
+            <p class="form-group">Where Are You:</p>
+            <select name="location" required>
+              <option selected="selected" disabled="disabled">Select a destination</option>
+              <option value="Harvard Quad">Quad</option>
+              <option value="Harvard Eliot House">East River</option>
+              <option value="Harvard Dunster House">West River</option>
+              <option value="Harvard Yard">Yard</option>
+              <option value="Harvard Stadium">Stadium</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <p class="form-group">Destination:</p>
+            <select name="destination" required>
+              <option selected="selected" disabled="disabled">Select a destination</option>
+              <option value="Harvard Quad">Quad</option>
+              <option value="Harvard Eliot House">East River</option>
+              <option value="Harvard Dunster House">West River</option>
+              <option value="Harvard Yard">Yard</option>
+              <option value="Harvard Stadium">Stadium</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <p class="form-group">Planned Arrival Time:</p>
+            <input name="arrival" type="time" step="900" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Request</button>
+        <input type="hidden" name="submission" value="request"/>
+    </form>
+{% endblock %}
