@@ -10,9 +10,6 @@ var userDestination
 
 var meeting;
 
-// test test test test
-
-
 // var riverNorth;
 // var riverSouth;
 // var stadium;
@@ -128,7 +125,7 @@ function meetPoint(place, start, destination){
     var matches = [];
 
     for (var i = 0; i < place.length; i++) {
-        if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start){
+        if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start && findDistance(start, place[i]['location'], destination)){
 
             matches.push(place[i]['location']);
         }
@@ -157,7 +154,10 @@ function findDistance(first, second, end){
 
 
         if (response.rows[0].elements[0].distance.value > response.rows[1].elements[0].distance.value){
-            console.log("w");
+            return true;
+        }
+        else {
+            return false;
         }
 
         });
