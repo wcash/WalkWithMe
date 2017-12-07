@@ -7,12 +7,14 @@
 
 <p>&nbsp;</p>
 <div class="jumbotron">
+<!-- if not logged in -->
 {% if not session.user_id %}
   <h1 style="text-align: center;"><span style="color: #FF0000;">Never Walk Alone Again!</span></h1>
   <p>Simply register or log in to visit your friends list and find people to walk with you!</p>
   <p><a class="btn btn-primary btn-lg" style="color: #FFFFFF;" href="/register">REGISTER</a>
   <font size="4">or</font>
   <a class="btn btn-primary btn-lg" style="color: #FFFFFF;"href="/login">LOG IN</a></p>
+<!-- if logged in -->
 {% else %}
 <h1 style="text-align: center;"><span style="color: #FF0000;">Welcome!</span></h1>
   <p>Add friends or submit a request to begin walking with friends!</p>

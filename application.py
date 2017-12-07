@@ -15,11 +15,12 @@ from helpers import apology, login_required
 from datetime import datetime
 
 
+# define variables that will be used later
 location = None;
 destination = None;
 arrivalTime = None;
 
-# API Key
+# Set API Key
 key = "AIzaSyDMhsvLB5Sa0jizEcPExguTmTPLyDi_fNU"
 
 # Configure applicxation
@@ -40,7 +41,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# set the secret key.  keep this really secret:
+# set the secret key (instructions found on google "Flask Secret Key"):
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 # Configure CS50 Library to use SQLite database
@@ -49,6 +50,8 @@ db = SQL("sqlite:///walk.db")
 @app.route("/")
 def index():
     """Homepage"""
+
+    # return index info
     return render_template("index.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -60,6 +63,7 @@ def login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
+
         # lowercase username
         username = request.form.get("username").lower()
 
@@ -82,6 +86,7 @@ def login():
         # Remember which user has logged in
         session["user_id"] = rows[0]["user_id"]
         session["my_name"] = username
+
         # Redirect user to home page
         return redirect("/")
 
@@ -108,7 +113,7 @@ def register():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
-        # lowercase username
+        # Lowercase username
         username = request.form.get("username").lower()
 
         # Ensure username was submitted and ≠ users
@@ -170,6 +175,7 @@ def account():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
+        # check to see if request is to change password
         if request.form['submission'] == "change":
             # Ensure password was submitted
             if not request.form.get("password"):
@@ -197,7 +203,7 @@ def account():
             else:
                 return apology("Error", 400)
 
-        # if attempting to delete account
+        # check if attempting to delete account
         elif request.form['submission'] == "delete":
             # ensure confirmation box is checked
             if not request.form.get("deletecheck"):
@@ -214,7 +220,6 @@ def account():
                 # Redirect to homepage
                 return redirect("/")
 
-
     # User reached route via GET (as by clicking a link or via redirect)
     return render_template("change.html")
 
@@ -222,10 +227,15 @@ def account():
 @login_required
 def map():
     """map"""
+
+    # if post
     if request.method == "POST":
+        # check to see refreshing
         if request.form['refresh'] == "refreshed":
+            # return refreshed map
             return redirect("/map")
     else:
+        # handle non key
         if not key:
             raise RuntimeError("API_KEY not set")
         return render_template("map.html", key = key)
@@ -253,6 +263,7 @@ def friends():
 
     # User reached route via POST (as by submitting a form via GET)
     if request.method == "POST":
+        # if attempting to refresh, refresh
         if request.form['refresh'] == "refreshed":
             return redirect("/friends")
         else:
@@ -285,11 +296,12 @@ def friends():
                         newusername = request.form.get("newfriend").lower()
                         flash(f"You've already added {newusername}!")
 
-
+        # redirect to friends
         return redirect("/friends")
-
+    # return friends template
     return render_template("friends.html", friends=friendslist)
 
+# handle errors
 def errorhandler(e):
     """Handle error"""
     return apology(e.name, e.code)

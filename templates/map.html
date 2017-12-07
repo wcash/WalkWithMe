@@ -27,13 +27,16 @@
 {% endblock %}
 
 {% block body %}
-    <form action="/map" align="center" method="post">
-        <button class="btn btn-primary" type="submit" name="refresh" value="refreshed">Check for newly available friends</button>
-    </form>
-    <p></p>
-    <div id="map"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ key | urlencode }}&callback=initMap"
-    async defer></script>
+  <!-- create reload feature -->
+  <form action="/map" align="center" method="post">
+      <button class="btn btn-primary" type="submit" name="refresh" value="refreshed">Check for newly available friends</button>
+  </form>
+  <p></p>
+  <div id="map"></div>
+
+  <!-- create map -->
+  <script src="https://maps.googleapis.com/maps/api/js?key={{ key | urlencode }}&callback=initMap"
+  async defer></script>
 
 {% endblock %}
 
