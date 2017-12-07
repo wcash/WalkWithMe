@@ -1,8 +1,9 @@
-#RUN BEFORE OPERATING FLASK:
-#export API_KEY=AIzaSyBBd2ui_STN7z6EyoawLpQ9oS8PZ-0stN8
+# RUN BEFORE OPERATING FLASK:
+# API_KEY=AIzaSyBBd2ui_STN7z6EyoawLpQ9oS8PZ-0stN8 (NO need to export, automaticly done below)
 import time
 import requests
-import json, random
+import json
+import random
 import os
 import re
 from cs50 import SQL, eprint
@@ -16,9 +17,9 @@ from datetime import datetime
 
 
 # define variables that will be used later
-location = None;
-destination = None;
-arrivalTime = None;
+location = None
+destination = None
+arrivalTime = None
 
 # Set API Key
 key = "AIzaSyDMhsvLB5Sa0jizEcPExguTmTPLyDi_fNU"
@@ -49,12 +50,14 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///walk.db")
 
+
 @app.route("/")
 def index():
     """Homepage"""
 
     # return index info
     return render_template("index.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -213,9 +216,11 @@ def account():
             # delete account (remove user from master users and remove usertable)
             else:
                 # remove user from master users table
-                delete = db.execute("DELETE FROM users WHERE user_id = :user", user=session["user_id"])
+                delete = db.execute("DELETE FROM users WHERE user_id = :user",
+                                    user=session["user_id"])
                 # remove all rows that include user in friends
-                friendslist = db.execute("DELETE FROM friends WHERE friend = :name OR user = :name", name=session["my_name"])
+                friendslist = db.execute(
+                    "DELETE FROM friends WHERE friend = :name OR user = :name", name=session["my_name"])
 
                 # Forget any user_id
                 session.clear()
@@ -225,7 +230,8 @@ def account():
     # User reached route via GET (as by clicking a link or via redirect)
     return render_template("change.html")
 
-@app.route("/map", methods = ['POST', 'GET'])
+
+@app.route("/map", methods=['POST', 'GET'])
 @login_required
 def map():
     """map"""
@@ -240,9 +246,7 @@ def map():
         # handle non key
         if not key:
             raise RuntimeError("API_KEY not set")
-        return render_template("map.html", key = key)
-
-
+        return render_template("map.html", key=key)
 
 
 @app.route("/friends", methods=["GET", "POST"])
@@ -256,18 +260,21 @@ def friends():
     # for each item in sql output, find which is friend and add to friendslist
     for row in friends:
         # query for all information from users about each, append to list to send to send to jinja/html in friends.html
-        friend = db.execute("SELECT username, destination, dep_time, location FROM users WHERE username = :name", name=row["friend"])
+        friend = db.execute(
+            "SELECT username, destination, dep_time, location FROM users WHERE username = :name", name=row["friend"])
         friendslist.append(friend[0])
 
     # collect current_request
-    current = db.execute("SELECT destination, dep_time, location FROM users WHERE user_id = :id", id=session["user_id"])
+    current = db.execute(
+        "SELECT destination, dep_time, location FROM users WHERE user_id = :id", id=session["user_id"])
     session["current_request"] = current[0]
 
     # User reached route via POST (as by submitting a form via GET)
     if request.method == "POST":
         # Ensure username was submitted /exists
         # query sequel
-        newfriend = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("newfriend").lower())
+        newfriend = db.execute("SELECT * FROM users WHERE username = :username",
+                               username=request.form.get("newfriend").lower())
         if not request.form.get("newfriend"):
             flash("You must provide a username to add!")
         elif len(newfriend) != 1:
@@ -276,14 +283,15 @@ def friends():
             flash("You cannot add yourself!")
         else:
             # check to see if you are on their list
-            check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name", friend_name=request.form.get("newfriend").lower(), my_name=session["my_name"])
+            check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name",
+                               friend_name=request.form.get("newfriend").lower(), my_name=session["my_name"])
             if len(check) != 0:
                 newusername = request.form.get("newfriend").lower()
                 flash(f"You're already friends with {newusername}!")
             else:
                 # add to list
                 addfriend = db.execute("INSERT INTO friends (friend, user) VALUES (:friend, :username)",
-                                  friend=request.form.get("newfriend").lower(), username=session["my_name"])
+                                       friend=request.form.get("newfriend").lower(), username=session["my_name"])
                 if not addfriend:
                     flash(f"You've already added {request.form.get('newfriend').lower()}!")
 
@@ -292,33 +300,39 @@ def friends():
     # return friends template
     return render_template("friends.html", friends=friendslist)
 
+
 # handle errors
 def errorhandler(e):
     """Handle error"""
     return apology(e.name, e.code)
 
+
 @app.route("/matches")
 def matches():
     """Look up friend matches"""
     # query database for user info
-    info = db.execute("SELECT destination, dep_time FROM users WHERE username = :user", user = session["my_name"])
+    info = db.execute(
+        "SELECT destination, dep_time FROM users WHERE username = :user", user=session["my_name"])
 
     # select list of all friends headed to the same place at the same time
-    friends = db.execute("SELECT location, dep_time FROM users JOIN friends ON friends.user = users.username WHERE friends.friend = :user AND users.destination = :destination AND users.dep_time = :time"
-        , user = session["my_name"], destination = info[0]["destination"], time = info[0]["dep_time"])
+    friends = db.execute("SELECT location, dep_time FROM users JOIN friends ON friends.user = users.username WHERE friends.friend = :user AND users.destination = :destination AND users.dep_time = :time",
+                         user=session["my_name"], destination=info[0]["destination"], time=info[0]["dep_time"])
 
     # return jsonifyed info
     return jsonify(friends)
+
 
 @app.route("/position")
 def position():
     """Look up friend matches"""
 
     # query for user's current position
-    info = db.execute("SELECT location, destination FROM users WHERE username = :user", user = session["my_name"])
+    info = db.execute(
+        "SELECT location, destination FROM users WHERE username = :user", user=session["my_name"])
 
     # return jsonifyed info
     return jsonify(info)
+
 
 @app.route("/request", methods=["GET", "POST"])
 @login_required
@@ -341,7 +355,7 @@ def order():
             else:
                 # update database with new request
                 update = db.execute("UPDATE users SET destination = :destination, dep_time = :arrival, location = :location WHERE user_id = :id",
-                    id=session["user_id"], destination = request.form.get("destination"), arrival=request.form.get("arrival"), location = request.form.get("location"))
+                                    id=session["user_id"], destination=request.form.get("destination"), arrival=request.form.get("arrival"), location=request.form.get("location"))
                 # redirect to map
                 return redirect("/map")
             # redirect to request
@@ -350,17 +364,20 @@ def order():
         # if submission is to clear
         if request.form['submission'] == "clear":
             # clear database
-            update = db.execute("UPDATE users SET destination = NULL, location = NULL, dep_time = NULL WHERE user_id = :id", id=session["user_id"])
+            update = db.execute(
+                "UPDATE users SET destination = NULL, location = NULL, dep_time = NULL WHERE user_id = :id", id=session["user_id"])
 
     # if get request
     else:
         # query database for current request
-        select = db.execute("SELECT destination, location, dep_time FROM users WHERE user_id = :id", id=session["user_id"])
+        select = db.execute(
+            "SELECT destination, location, dep_time FROM users WHERE user_id = :id", id=session["user_id"])
         destination = select[0]['destination']
         arrival = select[0]['dep_time']
         location = select[0]['location']
         # return current request to request.html
         return render_template("request.html", destination=destination, arrival=arrival, location=location)
+
 
 # listen for errors
 for code in default_exceptions:
