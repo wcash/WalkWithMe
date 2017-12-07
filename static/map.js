@@ -1,53 +1,33 @@
 var map, infoWindow;
-var pos;
-var cars;
-var json;
 var directionsService;
 var directionsDisplay;
 
-var userPosition;
-var userDestination
-
-var meeting;
-
-// test test test test
-
-
-// var riverNorth;
-// var riverSouth;
-// var stadium;
-// var quad;
-// var yardNorth;
-// var yardSouth;
-// var eastRiver
-
 function initMap() {
 
+    // for the making the route on google maps
     directionsService = new google.maps.DirectionsService;
     directionsDisplay = new google.maps.DirectionsRenderer;
 
-
+    // the map
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 42.3770, lng: -71.1167},
+        center: {lat: 42.3770, lng: -71.1167}, // Harvard Yard
         zoom: 16
         });
     directionsDisplay.setMap(map);
 
-
     infoWindow = new google.maps.InfoWindow;
 
+    // get the position of the user
     $.getJSON("/position", function(position) {
-
+        // get the users friends that are going to the same destination at the same time
         $.getJSON("/matches", function(data) {
 
             if(data != null)
             {
-
-                meeting = meetPoint(data, position[0]['location'], position[0]['destination']);
-                //makeMarker(meeting);
-                //calcRoute(data[0]['location'], meeting, data[0]['destination']);
-                calcRoute(position[0]['location'], meeting, position[0]['destination']);
-
+                // gets the waypoints from the user to the destination
+                meetPoint(data, position[0]['location'], position[0]['destination']);
+                //showInfo(points[1], data);
+                console.log(data);
             }
         });
 
@@ -55,10 +35,45 @@ function initMap() {
 
 }
 
+//adds meeting points with friends
+function meetPoint(place, start, destination, callback){
+    var matches = [start];
+    var list = [];
+
+    // only adds meeting points that aren't in the matches array
+    for (var i = 0; i < place.length; i++) {
+        if($.inArray(place[i]['location'], matches) == -1){
+
+            matches.push(place[i]['location']);
+
+        }
+    }
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+        {
+            origins: matches,
+            destinations: [destination],
+            travelMode: 'WALKING'
+        }, function(response, status){
+
+        for (var i = 0; i < matches.length - 1; i++){
+            if (response.rows[0].elements[0].distance.value > response.rows[i+1].elements[0].distance.value){
+                list.push(matches[i+1]);
+            }
+        }
+        calcRoute(start,list,destination);
+        console.log(response);
+        console.log(place);
+        leavingTime(response.rows[0].elements[0].duration.text, place[0]["dep_time"], (matches.length - 1 < list.length));
+        return list;
+
+    });
+}
+
+// function for calculating routs on google maps
 function calcRoute(start, meeting, end) {
-
+    // adds the waypoints to the route
     var waypts = [];
-
     for (var i = 0; i < meeting.length; i++){
         waypts.push({
             location: meeting[i],
@@ -66,6 +81,7 @@ function calcRoute(start, meeting, end) {
         });
     }
 
+    // makes the route with travel mode WALKING
     var request = {
         origin: start,
         waypoints: waypts,
@@ -80,66 +96,18 @@ function calcRoute(start, meeting, end) {
     });
 }
 
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-    infoWindow.setPosition(pos);
-    infoWindow.setContent(browserHasGeolocation ?
-                      'Error: The Geolocation service failed.' :
-                      'Error: Your browser doesn\'t support geolocation.');
+function leavingTime(travelTime, arrivalTime, starting){
+    if (starting){
+        var message = "Leave ";
+    }
+    else{
+        var message = "Meeting friends "
+    }
+
+    message += travelTime + " before " + arrivalTime + "to meet friends";
+
+    infoWindow.setContent(message);
+    infoWindow.setPosition({lat: 42.3770, lng: -71.1167});
+
     infoWindow.open(map);
 }
-
-function meetPoint(place, start, destination){
-    var matches = [];
-
-    for (var i = 0; i < place.length; i++) {
-        if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start){
-
-            matches.push(place[i]['location']);
-            console.log(findDistance(start, place[i]['loaction'], destination));
-
-
-
-        }
-    }
-    console.log(matches);
-    return matches;
-
-}
-
-function makeMarker(point){
-    var marker = new google.maps.Marker({
-        position: point,
-        map: map
-    });
-
-}
-
-function findDistance(first, second, end){
-    var service = new google.maps.DistanceMatrixService();
-    service.getDistanceMatrix(
-        {
-            origins: [first, second],
-            destinations: [end, end],
-            travelMode: 'WALKING'
-        }, function(response, status){
-
-        console.log(response);
-        console.log(response.rows[0].elements[0].distance.value);
-        console.log(response.rows[1].elements[0].distance.value);
-        var a = parseInt(response.rows[0].elements[0].distance.value);
-        var b = parseInt(response.rows[1].elements[0].distance.value);
-        if (a < b){//response.rows[0].elements[0].distance.value < response.rows[1].elements[0].distance.value){
-
-            console.log('alksdfja');
-
-            return second;
-        }
-        else {
-
-            console.log("lkwejf;klj");
-
-            return null;
-        }
-        });
-}
-
