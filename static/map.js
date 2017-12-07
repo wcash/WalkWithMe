@@ -92,13 +92,16 @@ function meetPoint(place, start, destination){
     var matches = [];
 
     for (var i = 0; i < place.length; i++) {
-        if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start && findDistance(start, place[i]['location'], destination)){
+        if($.inArray(place[i]['location'], matches) == -1 && place[i]['location'] != start){
 
-            console.log(place[i]['location']);
             matches.push(place[i]['location']);
+            console.log(findDistance(start, place[i]['loaction'], destination));
+
+
+
         }
     }
-
+    console.log(matches);
     return matches;
 
 }
@@ -123,16 +126,20 @@ function findDistance(first, second, end){
         console.log(response);
         console.log(response.rows[0].elements[0].distance.value);
         console.log(response.rows[1].elements[0].distance.value);
-        var a = response.rows[0].elements[0].distance.value;
-        var b = response.rows[1].elements[0].distance.value
+        var a = parseInt(response.rows[0].elements[0].distance.value);
+        var b = parseInt(response.rows[1].elements[0].distance.value);
         if (a < b){//response.rows[0].elements[0].distance.value < response.rows[1].elements[0].distance.value){
-            return false;
+
+            console.log('alksdfja');
+
+            return second;
         }
         else {
-            return false;
-        }
 
-        return true;
+            console.log("lkwejf;klj");
+
+            return null;
+        }
         });
 }
 

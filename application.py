@@ -196,8 +196,8 @@ def account():
             update = db.execute("UPDATE users SET hash = :hash WHERE user_id = :id",
                                 id=session["user_id"], hash=hash)
             if update:
-                # Redirect user to login page
-                session["user_id"] = None
+                # Clear session and redirect user to login page
+                session.clear()
                 flash("Your password has been successfully changed!")
                 return redirect("/")
             else:
@@ -263,38 +263,27 @@ def friends():
 
     # User reached route via POST (as by submitting a form via GET)
     if request.method == "POST":
-        # if attempting to refresh, refresh
-        if request.form['refresh'] == "refreshed":
-            return redirect("/friends")
+        # Ensure username was submitted /exists
+        # query sequel
+        newfriend = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("newfriend").lower())
+        if not request.form.get("newfriend"):
+            flash("You must provide a username to add!")
+        elif len(newfriend) != 1:
+            flash("Username does not exist!")
+        elif newfriend[0]["user_id"] == session["user_id"]:
+            flash("You cannot add yourself!")
         else:
-            # Ensure username was submitted
-            if not request.form.get("newfriend"):
-                flash("You must provide a username to add!")
-            # ensure username exists
-            newfriend = db.execute("SELECT * FROM users WHERE username = :username", username=request.form.get("newfriend").lower())
-            if len(newfriend) != 1:
-                flash("Username does not exist!")
-            elif newfriend[0]["user_id"] == session["user_id"]:
-                flash("You cannot add yourself!")
+            # check to see if you are on their list
+            check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name", friend_name=request.form.get("newfriend").lower(), my_name=session["my_name"])
+            if len(check) != 0:
+                newusername = request.form.get("newfriend").lower()
+                flash(f"You're already friends with {newusername}!")
             else:
-                # check to see if you are on their list
-                check = db.execute("SELECT * FROM friends WHERE user = :friend_name AND friend = :my_name", friend_name=request.form.get("newfriend").lower(), my_name=session["my_name"])
-                if len(check) != 0:
-                    newusername = request.form.get("newfriend").lower()
-                    flash(f"You're already friends with {newusername}!")
-                else:
-                    # add to list
-                    addfriend = db.execute("INSERT INTO friends (friend, user) VALUES (:friend, :username)",
-                                      friend=request.form.get("newfriend").lower(), username=session["my_name"])
-                    if not addfriend:
-                        newusername = request.form.get("newfriend").lower()
-                        flash(f"You've already added {newusername}!")
-                    # add to list
-                    addfriend = db.execute("INSERT INTO friends (user, friend) VALUES (:friend, :username)",
-                                      friend=request.form.get("newfriend").lower(), username=session["my_name"])
-                    if not addfriend:
-                        newusername = request.form.get("newfriend").lower()
-                        flash(f"You've already added {newusername}!")
+                # add to list
+                addfriend = db.execute("INSERT INTO friends (friend, user) VALUES (:friend, :username)",
+                                  friend=request.form.get("newfriend").lower(), username=session["my_name"])
+                if not addfriend:
+                    flash(f"You've already added {request.form.get('newfriend').lower()}!")
 
         # redirect to friends
         return redirect("/friends")
