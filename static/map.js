@@ -62,10 +62,10 @@ function meetPoint(place, start, destination, callback){
             }
         }
         calcRoute(start,list,destination);
-        console.log(response);
-        console.log(place);
         leavingTime(response.rows[0].elements[0].duration.text, place[0]["dep_time"], (matches.length - 1 < list.length));
-        return list;
+        console.log(matches.length - 1);
+        console.log(list.length);
+        console.log(matches.length - 1 <= list.length);
 
     });
 }

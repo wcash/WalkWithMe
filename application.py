@@ -35,10 +35,12 @@ if app.config["DEBUG"]:
         response.headers["Pragma"] = "no-cache"
         return response
 
-# Configure session to use filesystem (instead of signed cookies)
+# Configure session to use filesystem (instead of signed cookies), inlcuding static files
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+# ensures JS updates... https://stackoverflow.com/questions/41144565/flask-does-not-see-change-in-js-file
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 Session(app)
 
 # set the secret key (instructions found on google "Flask Secret Key"):
@@ -298,17 +300,24 @@ def errorhandler(e):
 @app.route("/matches")
 def matches():
     """Look up friend matches"""
-    info = db.execute("SELECT * FROM users WHERE username = :user", user = session["my_name"])
-    friends = db.execute("SELECT * FROM users JOIN friends ON friends.user = users.username WHERE friends.friend = :user AND users.destination = :destination AND users.dep_time = :time"
+    # query database for user info
+    info = db.execute("SELECT destination, dep_time FROM users WHERE username = :user", user = session["my_name"])
+
+    # select list of all friends headed to the same place at the same time
+    friends = db.execute("SELECT location, dep_time FROM users JOIN friends ON friends.user = users.username WHERE friends.friend = :user AND users.destination = :destination AND users.dep_time = :time"
         , user = session["my_name"], destination = info[0]["destination"], time = info[0]["dep_time"])
 
+    # return jsonifyed info
     return jsonify(friends)
 
 @app.route("/position")
 def position():
     """Look up friend matches"""
-    info = db.execute("SELECT * FROM users WHERE username = :user", user = session["my_name"])
 
+    # query for user's current position
+    info = db.execute("SELECT location, destination FROM users WHERE username = :user", user = session["my_name"])
+
+    # return jsonifyed info
     return jsonify(info)
 
 @app.route("/request", methods=["GET", "POST"])
@@ -317,31 +326,41 @@ def order():
     """request"""
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
+        # if submission is a new request
         if request.form['submission'] == "request":
+            # ensure location is given
             if not request.form.get("location"):
                 flash("You must provide your current location!")
+            # ensure destination is given
             elif not request.form.get("destination"):
                 flash("You must provide a destination!")
+            # ensure time is given
             elif not request.form.get("arrival"):
                 flash("You must provide an arrival time!")
+            # if all is given
             else:
+                # update database with new request
                 update = db.execute("UPDATE users SET destination = :destination, dep_time = :arrival, location = :location WHERE user_id = :id",
                     id=session["user_id"], destination = request.form.get("destination"), arrival=request.form.get("arrival"), location = request.form.get("location"))
-                location = request.form.get("location")
-                destination = request.form.get("destination")
-                arrivalTime = request.form.get("arrival")
+                # redirect to map
                 return redirect("/map")
+            # redirect to request
             return redirect("/request")
 
+        # if submission is to clear
         if request.form['submission'] == "clear":
+            # clear database
             update = db.execute("UPDATE users SET destination = NULL, location = NULL, dep_time = NULL WHERE user_id = :id", id=session["user_id"])
 
-
-    select = db.execute("SELECT destination, location, dep_time FROM users WHERE user_id = :id", id=session["user_id"])
-    destination = select[0]['destination']
-    arrival = select[0]['dep_time']
-    location = select[0]['location']
-    return render_template("request.html", destination=destination, arrival=arrival, location=location)
+    # if get request
+    else:
+        # query database for current request
+        select = db.execute("SELECT destination, location, dep_time FROM users WHERE user_id = :id", id=session["user_id"])
+        destination = select[0]['destination']
+        arrival = select[0]['dep_time']
+        location = select[0]['location']
+        # return current request to request.html
+        return render_template("request.html", destination=destination, arrival=arrival, location=location)
 
 # listen for errors
 for code in default_exceptions:
