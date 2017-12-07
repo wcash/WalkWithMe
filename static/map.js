@@ -104,7 +104,7 @@ function leavingTime(travelTime, arrivalTime, starting){
         var message = "Meeting friends "
     }
 
-    message += travelTime + " before " + arrivalTime + "to meet friends";
+    message += travelTime + " before " + arrivalTime + " to meet friends";
 
     infoWindow.setContent(message);
     infoWindow.setPosition({lat: 42.3770, lng: -71.1167});
