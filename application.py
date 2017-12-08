@@ -366,6 +366,8 @@ def order():
             # clear database
             update = db.execute(
                 "UPDATE users SET destination = NULL, location = NULL, dep_time = NULL WHERE user_id = :id", id=session["user_id"])
+            # redirect to request
+            return redirect("/request")
 
     # if get request
     else:
